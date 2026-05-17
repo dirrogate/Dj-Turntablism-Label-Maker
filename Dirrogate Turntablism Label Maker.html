@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dirrogate Turntablism Label Maker</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #1a1a24;
+            color: #e0e0e6;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 { margin-bottom: 10px; color: #fff; }
+        p { color: #a0a0b0; margin-bottom: 30px; }
+        
+        .controls-panel {
+            background-color: #252538;
+            border: 1px solid #4f4f7a;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 25px;
+        }
+        .slider-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .slider-group label {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+        }
+        .quality-val {
+            font-weight: bold;
+            color: #6366f1;
+            min-width: 35px;
+            text-align: left;
+        }
+
+        .action-bar {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .file-input-container {
+            background-color: #252538;
+            border: 2px dashed #4f4f7a;
+            border-radius: 12px;
+            padding: 40px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+        .file-input-container:hover {
+            border-color: #6366f1;
+            background-color: #2b2b42;
+        }
+        input[type="file"] { display: none; }
+        
+        .btn {
+            background-color: #6366f1;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn:hover { background-color: #4f46e5; }
+        .btn:disabled { background-color: #4a4a5a; cursor: not-allowed; }
+        .btn-danger { background-color: #ef4444; }
+        .btn-danger:hover { background-color: #dc2626; }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 25px;
+            margin-top: 10px;
+        }
+        .preview-card {
+            background-color: #252538;
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .preview-card canvas {
+            width: 100%;
+            border-radius: 8px;
+            background-color: #000;
+            margin-bottom: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+        }
+        .metadata-inputs {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .input-group label {
+            font-size: 11px;
+            font-weight: bold;
+            color: #7f7f9c;
+            width: 45px;
+            text-align: left;
+        }
+        .meta-field {
+            background-color: #1a1a24;
+            border: 1px solid #4f4f7a;
+            color: #fff;
+            padding: 6px;
+            border-radius: 4px;
+            flex-grow: 1;
+            font-size: 12px;
+        }
+        .bpm-field { font-weight: bold; text-align: center; max-width: 60px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Dirrogate Turntablism Label Maker</h1>
+    <p>Add artwork files incrementally to build your crate, then process them all together.</p>
+
+    <div class="controls-panel">
+        <div class="slider-group">
+            <label for="jpegQuality">Global JPEG Quality:</label>
+            <input type="range" id="jpegQuality" min="0.1" max="1.0" step="0.05" value="0.95">
+            <span class="quality-val" id="qualityVal">95%</span>
+        </div>
+    </div>
+
+    <div class="file-input-container" onclick="document.getElementById('imageLoader').click()">
+        <p style="margin: 0 0 15px 0; font-size: 18px; color: #fff;">Click to select or drop artwork files</p>
+        <span style="font-size: 14px; color: #7f7f9c;">Select multiple items at once, or keep adding files to append them to the current list</span>
+        <input type="file" id="imageLoader" accept="image/*" multiple>
+    </div>
+
+    <div class="action-bar">
+        <button id="downloadAllBtn" class="btn" disabled onclick="downloadAll()">Download All Labels</button>
+        <button id="clearGridBtn" class="btn btn-danger" disabled onclick="clearGrid()">Clear Grid</button>
+    </div>
+
+    <div class="preview-grid" id="previewGrid"></div>
+</div>
+
+<script>
+    const imageLoader = document.getElementById('imageLoader');
+    const previewGrid = document.getElementById('previewGrid');
+    const downloadAllBtn = document.getElementById('downloadAllBtn');
+    const clearGridBtn = document.getElementById('clearGridBtn');
+    const jpegQuality = document.getElementById('jpegQuality');
+    const qualityVal = document.getElementById('qualityVal');
+    
+    let activeCards = [];
+
+    jpegQuality.addEventListener('input', (e) => {
+        qualityVal.textContent = Math.round(e.target.value * 100) + "%";
+    });
+
+    imageLoader.addEventListener('change', handleImages, false);
+
+    function handleImages(e) {
+        const files = e.target.files;
+        if (!files.length) return;
+
+        downloadAllBtn.disabled = false;
+        clearGridBtn.disabled = false;
+
+        Array.from(files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    const filename = file.name;
+                    const cleanExtension = filename.substring(0, filename.lastIndexOf('.')) || filename;
+                    
+                    const bpmMatch = cleanExtension.match(/\b(\d{2,3})\s*(?:bpm|BPM)\b/);
+                    const detectedBpm = bpmMatch ? bpmMatch[1] : "120";
+                    
+                    let detectedTrack = cleanExtension.replace(/\s*-\s*\d{2,3}\s*(?:bpm|BPM)/i, '').trim();
+                    
+                    createVinylCard(img, filename, detectedTrack, detectedBpm);
+                }
+                img.src = event.target.result;
+            }
+            reader.readAsDataURL(file);
+        });
+        
+        // Reset file input value so the same file can be uploaded back-to-back if needed
+        imageLoader.value = '';
+    }
+
+    function createVinylCard(artworkImg, originalName, initialTrack, initialBpm) {
+        const card = document.createElement('div');
+        card.className = 'preview-card';
+
+        const canvas = document.createElement('canvas');
+        canvas.width = 600;
+        canvas.height = 600;
+        
+        const metaContainer = document.createElement('div');
+        metaContainer.className = 'metadata-inputs';
+        
+        const trackGroup = document.createElement('div');
+        trackGroup.className = 'input-group';
+        const trackLabel = document.createElement('label');
+        trackLabel.textContent = "TRACK:";
+        const trackField = document.createElement('input');
+        trackField.type = "text";
+        trackField.className = 'meta-field';
+        trackField.value = initialTrack;
+        trackGroup.appendChild(trackLabel);
+        trackGroup.appendChild(trackField);
+
+        const bpmGroup = document.createElement('div');
+        bpmGroup.className = 'input-group';
+        const bpmLabel = document.createElement('label');
+        bpmLabel.textContent = "BPM:";
+        const bpmField = document.createElement('input');
+        bpmField.type = "text";
+        bpmField.className = 'meta-field bpm-field';
+        bpmField.value = initialBpm;
+        bpmGroup.appendChild(bpmLabel);
+        bpmGroup.appendChild(bpmField);
+
+        metaContainer.appendChild(trackGroup);
+        metaContainer.appendChild(bpmGroup);
+
+        function render() {
+            drawVinylLabel(canvas, artworkImg, trackField.value, bpmField.value);
+        }
+
+        trackField.addEventListener('input', render);
+        bpmField.addEventListener('input', render);
+
+        render();
+
+        const dlBtn = document.createElement('button');
+        dlBtn.className = 'btn';
+        dlBtn.style.padding = '6px 12px';
+        dlBtn.style.fontSize = '12px';
+        dlBtn.textContent = 'Download';
+        
+        const cleanName = originalName.substring(0, originalName.lastIndexOf('.')) || originalName;
+        dlBtn.onclick = () => {
+            const link = document.createElement('a');
+            link.download = `${cleanName}_600_label.jpg`;
+            const quality = parseFloat(jpegQuality.value);
+            link.href = canvas.toDataURL('image/jpeg', quality);
+            link.click();
+        };
+
+        card.appendChild(canvas);
+        card.appendChild(metaContainer);
+        card.appendChild(dlBtn);
+        previewGrid.appendChild(card);
+        
+        // Accumulate button reference globally for batch downloading
+        activeCards.push(dlBtn);
+    }
+
+    function drawVinylLabel(canvas, artworkImg, trackText, bpmText) {
+        const ctx = canvas.getContext('2d');
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        
+        const labelRadius = 292; 
+        const artworkRadius = 182; 
+        const numberRadius = 240; 
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = '#121e31';
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, labelRadius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, artworkRadius, 0, Math.PI * 2);
+        ctx.clip();
+        
+        const minSide = Math.min(artworkImg.width, artworkImg.height);
+        const sx = (artworkImg.width - minSide) / 2;
+        const sy = (artworkImg.height - minSide) / 2;
+        ctx.drawImage(artworkImg, sx, sy, minSide, minSide, centerX - artworkRadius, centerY - artworkRadius, artworkRadius * 2, artworkRadius * 2);
+        ctx.restore();
+
+        for (let i = 0; i < 60; i++) {
+            const angle = (i * Math.PI / 30);
+            const isMajor = i % 5 === 0;
+            const tickLength = isMajor ? 12 : 6;
+            
+            ctx.beginPath();
+            ctx.lineWidth = isMajor ? 2.5 : 1.2;
+            ctx.strokeStyle = isMajor ? 'rgba(255, 255, 255, 0.85)' : 'rgba(255, 255, 255, 0.3)';
+            ctx.moveTo(centerX + (labelRadius - 3) * Math.cos(angle), centerY + (labelRadius - 3) * Math.sin(angle));
+            ctx.lineTo(centerX + (labelRadius - 3 - tickLength) * Math.cos(angle), centerY + (labelRadius - 3 - tickLength) * Math.sin(angle));
+            ctx.stroke();
+        }
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 32px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        for (let num = 1; num <= 12; num++) {
+            const angle = (num * Math.PI / 6) - Math.PI / 2;
+            const x = centerX + numberRadius * Math.cos(angle);
+            const y = centerY + numberRadius * Math.sin(angle);
+            ctx.fillText(num.toString(), x, y);
+        }
+
+        const hasTrack = trackText.trim() !== "";
+        const hasBpm = bpmText.trim() !== "";
+
+        if (hasTrack || hasBpm) {
+            ctx.save();
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+            ctx.beginPath();
+            ctx.roundRect(centerX - 130, centerY + 60, 260, 55, 8);
+            ctx.fill();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = 'center';
+
+            if (hasTrack) {
+                ctx.font = 'bold 15px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                let displayTrack = trackText;
+                if (ctx.measureText(displayTrack).width > 240) {
+                    while (ctx.measureText(displayTrack + '...').width > 240 && displayTrack.length > 0) {
+                        displayTrack = displayTrack.slice(0, -1);
+                    }
+                    displayTrack += '...';
+                }
+                ctx.fillText(displayTrack, centerX, centerY + 80);
+            }
+
+            if (hasBpm) {
+                ctx.fillStyle = '#a0a0b0'; 
+                ctx.font = 'bold 11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.fillText(`${bpmText} BPM`, centerX, centerY + 102);
+            }
+
+            ctx.restore();
+        }
+
+        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 15, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    function downloadAll() {
+        // Staggered trigger gives the browser time to process separate save windows
+        activeCards.forEach((btn, index) => {
+            setTimeout(() => { btn.click(); }, index * 400);
+        });
+    }
+
+    function clearGrid() {
+        previewGrid.innerHTML = '';
+        activeCards = [];
+        downloadAllBtn.disabled = true;
+        clearGridBtn.disabled = true;
+    }
+</script>
+
+</body>
+</html>
