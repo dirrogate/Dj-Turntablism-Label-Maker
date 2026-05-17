@@ -1,7 +1,8 @@
 <img width="1408" height="768" alt="Dirrogate Turntablism Label Maker" src="https://github.com/user-attachments/assets/8dd9df67-4874-4098-9db5-e671492f1378" />
 
 **About**:
-Djing with Turntables is a slowly dying skill and in keeping it alive, Virtual Reality offers a hope. Unlike modern CDJs where colorful waveforms float by and 'markers' set loop and cue points,
+
+Djing with Turntables is a slowly dying skill and in keeping it alive, Virtual Reality offers hope. Unlike modern CDJs where colorful waveforms float by and 'markers' set loop and cue points,
 back in the day, turntabilsm involved physical tape/stickers stuck onto the vinyl records, or markers drawn on the inner label to help DJs scope out approximate beginnings of Phrases
 
 **Dirrogate Turntablism Marker System**: I figured a clock face label on (virtual Vinyl records) would be a great analogy to quickly align tonearm/stylus for Virtual Djs.
