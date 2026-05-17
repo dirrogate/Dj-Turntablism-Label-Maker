@@ -3,7 +3,7 @@
 **About**:
 
 Djing with Turntables is a dying skill and in keeping it alive, Virtual Reality offers hope. Unlike modern CDJs where colorful waveforms float by and 'markers' set loop and cue points, (giving rise cue button abuse & stutter mixing)...
-Besides Battle Djing, the art of turntablism involved physical tape/stickers stuck onto the vinyl records, or markers drawn on the inner label to help DJs scope out approximate beginnings of Phrases and interesting points to jump to, lifting with their fingers, the stylus and placing it physically on that section of the record.
+Besides Battle Djing, the art of turntablism involved physical tape/stickers stuck onto the vinyl records, or sharpie drawn arrows on the inner label to help DJs scope out approximate beginnings of Phrases and interesting points to jump to, lifting with their fingers, the stylus and placing it physically on that section of the record.
 
 **Dirrogate Turntablism Marker System**: I figured a clock face label on (virtual Vinyl records) would be a good analogy to stickers and sharpies and quickly align tonearm/stylus for Virtual Djs.
 It might also be great for physical vinyl DJs to print and stick over their real vinyl if needed.
