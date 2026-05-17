@@ -9,7 +9,7 @@ back in the day, turntabilsm involved physical tape/stickers stuck onto the viny
 It could also be great for those physical vinyl DJs to print and stick over their real vinyl if needed.
 
 **Usage**:
-A simple Html file that can be loaded into any browser.
+A simple Html file that can be loaded into any browser. (Download the zip file in this git hub repo)
 [MP3Tag](https://www.mp3tag.de/en/) the software is highly recommended as it can take album art and output the cover+Song title+bpm to then be used in the Label Maker.
 Process: In Mp3tag, select your tracks.
 - Go to Actions (Alt + 6) and create an Export Cover action.
@@ -17,7 +17,7 @@ Process: In Mp3tag, select your tracks.
 - Run the action. Your artwork folder will now look like: Deep Space - 124BPM.jpg
 - Mp3Tag will usually output these covers to the same directory it found your songs in.
 
-- **Using the HTML app:** Double click the downloaded html in this git hub repo to open it in your browser (Laptop/PC preferred versus mobile as mobiles mess up filenames)
+- **Using the HTML app:** Download the zip file in this git hub repo and open the html file in your browser (Laptop/PC preferred versus mobile as mobiles mess up filenames)
 - CRITICAL FIRST-TIME STEP: Because browsers protect against malicious downloads, your browser will likely block the batch operation on your very first click.
 
 Look at the far right side of your browser's address bar (near the bookmark star). You will see an icon with a tiny red notification or warning symbol.
